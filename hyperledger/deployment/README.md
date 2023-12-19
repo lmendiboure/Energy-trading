@@ -1,0 +1,1 @@
+These files enable basic deployment of the Hyperledger Fabric architecture used in this implementation. To deploy the architecture, you need to perform the following steps: generate the artifacts using the proposed bash script, place them in the same folder as the docker-compose and run the `docker-compose up` command.
