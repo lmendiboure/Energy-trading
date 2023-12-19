@@ -1,0 +1,34 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyperledger Fabric Energy Exchange Dapp</title>
+    <script src="fabric-network.min.js"></script>
+</head>
+<body>
+    <h1>Hyperledger Fabric Energy Exchange</h1>
+    <div id="userDetails">
+        <p><strong>User Address:</strong> <span id="userAddress"></span></p>
+        <p><strong>User Type:</strong> <span id="userType"></span></p>
+        <p><strong>User Priority:</strong> <span id="userPriority"></span></p>
+    </div>
+    <hr>
+    <h2>Manage Energy Resources</h2>
+    <label for="timestamp">Timestamp:</label>
+    <input type="text" id="timestamp" placeholder="Enter timestamp">
+    <label for="amount">Amount:</label>
+    <input type="number" id="amount" placeholder="Enter amount">
+    <button onclick="specifyEnergyResource()">Specify Energy Resource</button>
+    <hr>
+    <h2>Reserve Energy Resources</h2>
+    <label for="reserveTimestamp">Timestamp:</label>
+    <input type="text" id="reserveTimestamp" placeholder="Enter timestamp">
+    <label for="reserveAmount">Amount:</label>
+    <input type="number" id="reserveAmount" placeholder="Enter amount">
+    <button onclick="reserveEnergyResource()">Reserve Energy Resource</button>
+
+    <script src="app.js"></script>
+</body>
+</html>
