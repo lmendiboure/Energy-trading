@@ -36,8 +36,6 @@ contract Prosumer {
     }
 
     function cancelRequest() public {
-        // Logique pour annuler une demande
-        // Ici, nous supprimons simplement la demande, mais vous pouvez ajouter des règles spécifiques
         emit RequestCanceled(msg.sender, uint(energyBalance));
         energyBalance = 0;
     }
