@@ -1,45 +1,83 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ethereum Energy Exchange Dapp</title>
-    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+    <title>Ethereum Energy Dapp</title>
+    <style>
+        /* Add your styles here */
+    </style>
 </head>
 <body>
-    <h1>Ethereum Energy Exchange</h1>
-    <div id="userDetails">
-        <p><strong>User Address:</strong> <span id="userAddress"></span></p>
-        <p><strong>User Type:</strong> <span id="userType"></span></p>
-        <p><strong>User Priority:</strong> <span id="userPriority"></span></p>
+    <h1>Ethereum Energy Dapp</h1>
+    
+    <!-- Registration form -->
+    <div>
+        <h2>Prosumer Registration</h2>
+        <label for="identity">Identity:</label>
+        <input type="text" id="identity">
+        <label for="priority">Priority:</label>
+        <input type="number" id="priority">
+        <button onclick="registerProsumer()">Register</button>
     </div>
-    <hr>
-    <h2>Manage Energy Resources</h2>
-    <label for="timestamp">Timestamp:</label>
-    <input type="number" id="timestamp" placeholder="Enter timestamp">
-    <label for="amount">Amount:</label>
-    <input type="number" id="amount" placeholder="Enter amount">
-    <button onclick="specifyEnergyResource()">Specify Energy Resource</button>
-    <hr>
-    <h2>Reserve Energy Resources</h2>
-    <label for="reserveTimestamp">Timestamp:</label>
-    <input type="number" id="reserveTimestamp" placeholder="Enter timestamp">
-    <label for="reserveAmount">Amount:</label>
-    <input type="number" id="reserveAmount" placeholder="Enter amount">
-    <button onclick="reserveEnergyResource()">Reserve Energy Resource</button>
-    <hr>
-    <h2>Trade Energy</h2>
-    <label for="tradeFromUser">From User:</label>
-    <input type="text" id="tradeFromUser" placeholder="Enter sender address">
-    <label for="tradeToUser">To User:</label>
-    <input type="text" id="tradeToUser" placeholder="Enter receiver address">
-    <label for="tradeTimestamp">Timestamp:</label>
-    <input type="number" id="tradeTimestamp" placeholder="Enter timestamp">
-    <label for="tradeAmount">Amount:</label>
-    <input type="number" id="tradeAmount" placeholder="Enter amount">
-    <button onclick="tradeEnergy()">Trade Energy</button>
 
+    <!-- Energy sharing form -->
+    <div>
+        <h2>Energy Sharing</h2>
+        <label for="shareTo">Share to:</label>
+        <input type="text" id="shareTo">
+        <label for="quantity">Quantity:</label>
+        <input type="number" id="quantity">
+        <label for="timeSlot">Time Slot:</label>
+        <input type="number" id="timeSlot">
+        <button onclick="shareEnergy()">Share Energy</button>
+    </div>
+
+    <!-- Energy request form -->
+    <div>
+        <h2>Energy Request</h2>
+        <label for="requestFrom">Request from:</label>
+        <input type="text" id="requestFrom">
+        <label for="requestQuantity">Quantity:</label>
+        <input type="number" id="requestQuantity">
+        <label for="requestTimeSlot">Time Slot:</label>
+        <input type="number" id="requestTimeSlot">
+        <button onclick="requestEnergy()">Request Energy</button>
+    </div>
+
+    <!-- Cancel request form -->
+    <div>
+        <h2>Cancel Request</h2>
+        <label for="cancelRequestFrom">Cancel request from:</label>
+        <input type="text" id="cancelRequestFrom">
+        <label for="cancelRequestTimeSlot">Time Slot:</label>
+        <input type="number" id="cancelRequestTimeSlot">
+        <button onclick="cancelRequest()">Cancel Request</button>
+    </div>
+
+    <!-- Time slot creation form -->
+    <div>
+        <h2>Create Time Slot</h2>
+        <button onclick="createTimeSlot()">Create Time Slot</button>
+    </div>
+
+    <!-- Handle requests form -->
+    <div>
+        <h2>Handle Requests</h2>
+        <label for="handleRequestsTimeSlot">Time Slot:</label>
+        <input type="number" id="handleRequestsTimeSlot">
+        <button onclick="handleRequests()">Handle Requests</button>
+    </div>
+
+    <!-- Output container for events -->
+    <div id="outputContainer">
+        <h2>Events</h2>
+        <ul id="eventsList"></ul>
+    </div>
+
+    <!-- Web3.js script -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.3/dist/web3.min.js"></script>
+    <!-- Your Dapp script -->
     <script src="app.js"></script>
 </body>
 </html>
