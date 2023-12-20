@@ -1,66 +1,75 @@
-// app.js
 document.addEventListener('DOMContentLoaded', async () => {
-    if (window.ethereum) {
-        window.web3 = new Web3(ethereum);
-        try {
-            await ethereum.enable();
-            initApp();
-        } catch (error) {
-            console.error(error);
-        }
-    } else if (window.web3) {
-        window.web3 = new Web3(web3.currentProvider);
-        initApp();
-    } else {
-        console.error('Non-Ethereum browser detected. You should consider trying MetaMask!');
+    // Connect to the local Ethereum node
+    window.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+
+    // Set the default account to use for transactions
+    const accounts = await window.web3.eth.getAccounts();
+    window.web3.eth.defaultAccount = accounts[0];
+
+    // Load your contract ABI and address
+    const energySystemABI = /* Your EnergySystem contract ABI */;
+    const energySystemAddress = /* Your EnergySystem contract address */;
+    const energySystemContract = new window.web3.eth.Contract(energySystemABI, energySystemAddress);
+
+    // Event output container
+    const eventsList = document.getElementById('eventsList');
+
+    // Function to display events in the UI
+    function displayEvent(event) {
+        const listItem = document.createElement('li');
+        listItem.textContent = event.event;
+        eventsList.appendChild(listItem);
     }
+
+    // Function to register a prosumer
+    window.registerProsumer = async () => {
+        const identity = document.getElementById('identity').value;
+        const priority = document.getElementById('priority').value;
+        
+        await energySystemContract.methods.registerProsumer(identity, priority).send();
+        displayEvent({ event: 'ProsumerRegistered', identity, priority });
+    };
+
+    // Function to share energy
+    window.shareEnergy = async () => {
+        const shareTo = document.getElementById('shareTo').value;
+        const quantity = document.getElementById('quantity').value;
+        const timeSlot = document.getElementById('timeSlot').value;
+
+        await energySystemContract.methods.shareEnergy(shareTo, quantity, timeSlot).send();
+        displayEvent({ event: 'EnergyShared', shareTo, quantity, timeSlot });
+    };
+
+    // Function to request energy
+    window.requestEnergy = async () => {
+        const requestFrom = document.getElementById('requestFrom').value;
+        const requestQuantity = document.getElementById('requestQuantity').value;
+        const requestTimeSlot = document.getElementById('requestTimeSlot').value;
+
+        await energySystemContract.methods.requestEnergy(requestFrom, requestQuantity, requestTimeSlot).send();
+        displayEvent({ event: 'EnergyRequested', requestFrom, requestQuantity, requestTimeSlot });
+    };
+
+    // Function to cancel a request
+    window.cancelRequest = async () => {
+        const cancelRequestFrom = document.getElementById('cancelRequestFrom').value;
+        const cancelRequestTimeSlot = document.getElementById('cancelRequestTimeSlot').value;
+
+        await energySystemContract.methods.cancelRequest(cancelRequestFrom, cancelRequestTimeSlot).send();
+        displayEvent({ event: 'RequestCanceled', cancelRequestFrom, cancelRequestTimeSlot });
+    };
+
+    // Function to create a new time slot
+    window.createTimeSlot = async () => {
+        await energySystemContract.methods.createNewTimeSlot().send();
+        displayEvent({ event: 'TimeSlotCreated' });
+    };
+
+    // Function to handle requests
+    window.handleRequests = async () => {
+        const handleRequestsTimeSlot = document.getElementById('handleRequestsTimeSlot').value;
+
+        await energySystemContract.methods.handleRequests(handleRequestsTimeSlot).send();
+        displayEvent({ event: 'RequestsHandled', handleRequestsTimeSlot });
+    };
 });
-
-async function initApp() {
-    // Instantiate contract
-    const contractAddress = 'YOUR_CONTRACT_ADDRESS';
-    const abi = [ /* Contract ABI goes here */ ];
-    const energyExchangeContract = new web3.eth.Contract(abi, contractAddress);
-
-    // Get user details
-    const accounts = await web3.eth.getAccounts();
-    const userAddress = accounts[0];
-    const userType = await energyExchangeContract.methods.users(userAddress).call().then(user => user.userType);
-    const userPriority = await energyExchangeContract.methods.users(userAddress).call().then(user => user.priority);
-
-    // Display user details
-    document.getElementById('userAddress').textContent = userAddress;
-    document.getElementById('userType').textContent = userType;
-    document.getElementById('userPriority').textContent = userPriority;
-}
-
-async function specifyEnergyResource() {
-    // Get input values
-    const timestamp = document.getElementById('timestamp').value;
-    const amount = document.getElementById('amount').value;
-
-    // Call contract function
-    await energyExchangeContract.methods.specifyEnergyResource(timestamp, amount).send({ from: web3.eth.defaultAccount });
-    console.log(`Energy resource specified for timestamp ${timestamp} with amount ${amount}`);
-}
-
-async function reserveEnergyResource() {
-    // Get input values
-    const reserveTimestamp = document.getElementById('reserveTimestamp').value;
-    const reserveAmount = document.getElementById('reserveAmount').value;
-
-    // Call contract function
-    await energyExchangeContract.methods.reserveEnergyResource(userAddress, reserveTimestamp, reserveAmount).send({ from: web3.eth.defaultAccount });
-    console.log(`Energy resource reserved for timestamp ${reserveTimestamp} with amount ${reserveAmount}`);
-}
-
-async function tradeEnergy() {
-    // Get input values
-    const tradeFromUser = document.getElementById('tradeFromUser').value;
-    const tradeToUser = document.getElementById('tradeToUser').value;
-    const tradeTimestamp = document.getElementById('tradeTimestamp').value;
-    const tradeAmount = document.getElementById('tradeAmount').value;
-
-    // Call contract function
-    await energyExchangeContract.methods.tradeEnergy(tradeFromUser, tradeToUser, tradeTimestamp, tradeAmount).send({ from: web3.eth.defaultAccount });
-    console.log(`Energy traded from ${tradeFromUser} to ${tradeToUser} for timestamp ${tradeTimestamp}
