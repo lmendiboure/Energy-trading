@@ -1,75 +1,46 @@
-document.addEventListener('DOMContentLoaded', async () => {
-    // Connect to the local Ethereum node
-    window.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+const { Gateway, Wallets } = require('fabric-network');
+const fs = require('fs');
+const path = require('path');
 
-    // Set the default account to use for transactions
-    const accounts = await window.web3.eth.getAccounts();
-    window.web3.eth.defaultAccount = accounts[0];
+async function main() {
+    try {
+        // Load connection profile
+        const ccpPath = path.resolve(__dirname, 'connection.json');
+        const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
+        const ccp = JSON.parse(ccpJSON);
 
-    // Load your contract ABI and address
-    const energySystemABI = /* Your EnergySystem contract ABI */;
-    const energySystemAddress = /* Your EnergySystem contract address */;
-    const energySystemContract = new window.web3.eth.Contract(energySystemABI, energySystemAddress);
+        // Create a new file system wallet
+        const walletPath = path.join(process.cwd(), 'wallet');
+        const wallet = await Wallets.newFileSystemWallet(walletPath);
 
-    // Event output container
-    const eventsList = document.getElementById('eventsList');
+        // Check to see if the user is already enrolled and has a valid identity
+        const identity = await wallet.get('user1');
+        if (!identity) {
+            console.log('An identity for the user "user1" does not exist in the wallet');
+            return;
+        }
 
-    // Function to display events in the UI
-    function displayEvent(event) {
-        const listItem = document.createElement('li');
-        listItem.textContent = event.event;
-        eventsList.appendChild(listItem);
+        // Connect to the gateway
+        const gateway = new Gateway();
+        await gateway.connect(ccp, {
+            wallet,
+            identity: 'user1',
+            discovery: { enabled: true, asLocalhost: true },
+        });
+
+        // Get the network channel and contract
+        const network = await gateway.getNetwork('mychannel');
+        const contract = network.getContract('energysystem');
+
+        // Perform transactions or queries here
+        // Example: const result = await contract.submitTransaction('createNewTimeSlot');
+
+        // Disconnect from the gateway
+        await gateway.disconnect();
+    } catch (error) {
+        console.error(`Error: ${error}`);
+        process.exit(1);
     }
+}
 
-    // Function to register a prosumer
-    window.registerProsumer = async () => {
-        const identity = document.getElementById('identity').value;
-        const priority = document.getElementById('priority').value;
-        
-        await energySystemContract.methods.registerProsumer(identity, priority).send();
-        displayEvent({ event: 'ProsumerRegistered', identity, priority });
-    };
-
-    // Function to share energy
-    window.shareEnergy = async () => {
-        const shareTo = document.getElementById('shareTo').value;
-        const quantity = document.getElementById('quantity').value;
-        const timeSlot = document.getElementById('timeSlot').value;
-
-        await energySystemContract.methods.shareEnergy(shareTo, quantity, timeSlot).send();
-        displayEvent({ event: 'EnergyShared', shareTo, quantity, timeSlot });
-    };
-
-    // Function to request energy
-    window.requestEnergy = async () => {
-        const requestFrom = document.getElementById('requestFrom').value;
-        const requestQuantity = document.getElementById('requestQuantity').value;
-        const requestTimeSlot = document.getElementById('requestTimeSlot').value;
-
-        await energySystemContract.methods.requestEnergy(requestFrom, requestQuantity, requestTimeSlot).send();
-        displayEvent({ event: 'EnergyRequested', requestFrom, requestQuantity, requestTimeSlot });
-    };
-
-    // Function to cancel a request
-    window.cancelRequest = async () => {
-        const cancelRequestFrom = document.getElementById('cancelRequestFrom').value;
-        const cancelRequestTimeSlot = document.getElementById('cancelRequestTimeSlot').value;
-
-        await energySystemContract.methods.cancelRequest(cancelRequestFrom, cancelRequestTimeSlot).send();
-        displayEvent({ event: 'RequestCanceled', cancelRequestFrom, cancelRequestTimeSlot });
-    };
-
-    // Function to create a new time slot
-    window.createTimeSlot = async () => {
-        await energySystemContract.methods.createNewTimeSlot().send();
-        displayEvent({ event: 'TimeSlotCreated' });
-    };
-
-    // Function to handle requests
-    window.handleRequests = async () => {
-        const handleRequestsTimeSlot = document.getElementById('handleRequestsTimeSlot').value;
-
-        await energySystemContract.methods.handleRequests(handleRequestsTimeSlot).send();
-        displayEvent({ event: 'RequestsHandled', handleRequestsTimeSlot });
-    };
-});
+main();
