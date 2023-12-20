@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  node1:
+    image: ethereum/client-go
+    command: --datadir=/node1
+    ports:
+      - "8545:8545"
+    networks:
+      - ethereum
+
+  node2:
+    image: ethereum/client-go
+    command: --datadir=/node2
+    ports:
+      - "8546:8546"
+    networks:
+      - ethereum
+
+networks:
+  ethereum:
+    driver: bridge
