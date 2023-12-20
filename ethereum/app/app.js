@@ -2,45 +2,101 @@ const { Gateway, Wallets } = require('fabric-network');
 const fs = require('fs');
 const path = require('path');
 
-async function main() {
+async function registerProsumer() {
     try {
-        // Load connection profile
-        const ccpPath = path.resolve(__dirname, 'connection.json');
-        const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
-        const ccp = JSON.parse(ccpJSON);
+        const gateway = await connectToGateway();
+        const contract = await gateway.getNetwork('mychannel').getContract('energysystem');
 
-        // Create a new file system wallet
-        const walletPath = path.join(process.cwd(), 'wallet');
-        const wallet = await Wallets.newFileSystemWallet(walletPath);
+        // Perform registration transaction
+        const result = await contract.submitTransaction('registerProsumer', 'prosumer1', 1);
+        console.log(result.toString());
 
-        // Check to see if the user is already enrolled and has a valid identity
-        const identity = await wallet.get('user1');
-        if (!identity) {
-            console.log('An identity for the user "user1" does not exist in the wallet');
-            return;
-        }
-
-        // Connect to the gateway
-        const gateway = new Gateway();
-        await gateway.connect(ccp, {
-            wallet,
-            identity: 'user1',
-            discovery: { enabled: true, asLocalhost: true },
-        });
-
-        // Get the network channel and contract
-        const network = await gateway.getNetwork('mychannel');
-        const contract = network.getContract('energysystem');
-
-        // Perform transactions or queries here
-        // Example: const result = await contract.submitTransaction('createNewTimeSlot');
-
-        // Disconnect from the gateway
         await gateway.disconnect();
     } catch (error) {
         console.error(`Error: ${error}`);
-        process.exit(1);
     }
 }
 
-main();
+async function shareEnergy() {
+    try {
+        const gateway = await connectToGateway();
+        const contract = await gateway.getNetwork('mychannel').getContract('energysystem');
+
+        // Perform share energy transaction
+        const result = await contract.submitTransaction('shareEnergy', 'prosumer1', 10);
+        console.log(result.toString());
+
+        await gateway.disconnect();
+    } catch (error) {
+        console.error(`Error: ${error}`);
+    }
+}
+
+async function requestEnergy() {
+    try {
+        const gateway = await connectToGateway();
+        const contract = await gateway.getNetwork('mychannel').getContract('energysystem');
+
+        // Perform request energy transaction
+        const result = await contract.submitTransaction('requestEnergy', 'prosumer1', 5);
+        console.log(result.toString());
+
+        await gateway.disconnect();
+    } catch (error) {
+        console.error(`Error: ${error}`);
+    }
+}
+
+async function cancelRequest() {
+    try {
+        const gateway = await connectToGateway();
+        const contract = await gateway.getNetwork('mychannel').getContract('energysystem');
+
+        // Perform cancel request transaction
+        const result = await contract.submitTransaction('cancelRequest', 'prosumer1');
+        console.log(result.toString());
+
+        await gateway.disconnect();
+    } catch (error) {
+        console.error(`Error: ${error}`);
+    }
+}
+
+async function createNewTimeSlot() {
+    try {
+        const gateway = await connectToGateway();
+        const contract = await gateway.getNetwork('mychannel').getContract('energysystem');
+
+        // Perform create new time slot transaction
+        const result = await contract.submitTransaction('createNewTimeSlot');
+        console.log(result.toString());
+
+        await gateway.disconnect();
+    } catch (error) {
+        console.error(`Error: ${error}`);
+    }
+}
+
+async function connectToGateway() {
+    const ccpPath = path.resolve(__dirname, 'connection.json');
+    const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
+    const ccp = JSON.parse(ccpJSON);
+
+    const walletPath = path.join(process.cwd(), 'wallet');
+    const wallet = await Wallets.newFileSystemWallet(walletPath);
+
+    const identity = await wallet.get('user1');
+    if (!identity) {
+        console.log('An identity for the user "user1" does not exist in the wallet');
+        return;
+    }
+
+    const gateway = new Gateway();
+    await gateway.connect(ccp, {
+        wallet,
+        identity: 'user1',
+        discovery: { enabled: true, asLocalhost: true },
+    });
+
+    return gateway;
+}
